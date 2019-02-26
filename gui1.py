@@ -9,6 +9,7 @@ import sklearn
 import scipy.fftpack
 import sklearn.linear_model as sk
 import sklearn.svm as svk
+from train import *
 def fftfunc(fr,nfft):
     l=np.fft.rfft(fr,nfft)
     l=np.absolute(l)
@@ -16,7 +17,7 @@ def fftfunc(fr,nfft):
     return l
 
 def processing():
-    s,f=sf.read('vac1.wav')
+    s,f=sf.read('guitest.wav')
     print('Calculating frame size and number of frames')
     overlap=int(f*0.01)
     no_frames=int(len(s)/overlap)
@@ -47,7 +48,7 @@ def processing():
     delta=np.zeros((1000,13))
     dpad=np.zeros((1000,17))
     ddelta=np.zeros((1000,13))
-    featvect=np.zeros((1000,39))
+    featvect=np.zeros((1000,13))
     print('Calculating frames')
     for i in range(0,no_frames):
         for j in range(0,framesize):
@@ -62,6 +63,7 @@ def processing():
     feat1=np.log(feat1)
     feat1=scipy.fftpack.dct(feat1,norm='ortho')
     feat=feat1[:,:13]
+    """
     print('Calculating delta coeffs')
     for i in range(0,1000):
         for j in range(2,15):
@@ -75,23 +77,20 @@ def processing():
             dpad[i][j]=pad[i][j-2]
     for i in range(0,1000):
         for j in range(0,13):
-            ddelta[i][j]=np.dot(np.arange(-2,3),dpad[i][j:j+5])/10 
+            ddelta[i][j]=np.dot(np.arange(-2,3),dpad[i][j:j+5])/10
+            """
     for i in range(0,1000):
         for j in range(0,13):
             featvect[i][j]=feat[i][j]
-            featvect[i][j+13]=delta[i][j]
-            featvect[i][j+26]=ddelta[i][j]
-    featvect=featvect.reshape(1,39000)
-    np.savetxt('vacgui.txt',featvect)
-
+            #featvect[i][j+13]=delta[i][j]
+            #featvect[i][j+26]=ddelta[i][j]
+    featvect=featvect.reshape(1,13000)
+    np.savetxt('guitext.txt',featvect)
 def act():
-   X_train=np.loadtxt('X_train.txt')
-   y_train=np.loadtxt('y_train.txt')
-   X_test=np.loadtxt('vacgui.txt')
+   X_test=np.loadtxt('guitext.txt')
+   X_test=X_test.reshape(1,-1)
    print('Done storing')
-   clf1=svk.SVC()
-   clf1.fit(X_train,y_train)
-   print('Done fitting')
+
    y_pred=clf1.predict(X_test)
    if y_pred==0:
        print("Typing")
@@ -106,7 +105,9 @@ def act():
 def record_file():
     subprocess.run(["arecord","--format=S16_LE","--rate=48000","--channels=1","-d","10","guitest.wav"])
     print("Recording done")
-    
+def redirector(inputStr):
+    textbox.insert(INSERT,inputStr)
+sys.stdout.write=redirector
 master=Tk()
 b1=Button(master,text='Record', command=record_file)
 b1.pack()
@@ -114,3 +115,6 @@ b2=Button(master,text='Process', command=processing)
 b2.pack()
 b3=Button(master,text='Find activity', command=act)
 b3.pack()
+textbox=Text(master)
+textbox.pack()
+master.mainloop()
