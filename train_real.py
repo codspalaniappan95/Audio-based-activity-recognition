@@ -6,6 +6,7 @@ import os
 from sklearn.model_selection import train_test_split
 from sklearn import metrics as sm
 
+#Obtaining the training data from the individual text files
 ltype=os.listdir("/home/pi/rpo/Audio-based-activity-recognition/data/test")
 leat=os.listdir("/home/pi/rpo/Audio-based-activity-recognition/data/eat")
 lhair=os.listdir("/home/pi/rpo/Audio-based-activity-recognition/data/hair")
@@ -14,7 +15,7 @@ lvac=os.listdir("/home/pi/rpo/Audio-based-activity-recognition/data/vac")
 l=[ltype,leat,lhair,llaund,lvac]
 v=50
 
-
+#Storing all the values in a single array
 activ1=np.ndarray((5,v,1,39000))
 for k in range(0,5):
     if k==2:
@@ -26,14 +27,14 @@ for k in range(0,5):
 X=np.ndarray((5*v,39000))
 y=np.ndarray(5*v)
 m=0
+
+#Storing the labels and the data to be fitted
 for k in range(0,5):
     for i in range(0,v):
         X[m]=activ1[k][i]
         y[m]=k
         m=m+1
 
-#clf1=svk.SVC()
-#clf1.fit(X,y)
-
+#Initialising random forest and storing
 clf1=rf()
 clf1.fit(X,y)
