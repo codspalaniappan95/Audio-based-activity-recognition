@@ -20,7 +20,7 @@ import subprocess
 import queue as Queue
 
 # Function to compute FFT and power spectrum
-def fftfunc(fr,nfft):
+def fftfunc(fr,nfft):   
     l=np.fft.rfft(fr,nfft)
     l=np.absolute(l)
     l=(1/2048)*(np.square(l))
